@@ -163,6 +163,7 @@ jobs:
           echo "  - Tests: $TEST_RESULT"
           echo "  - Security: $SECURITY_RESULT"
           echo "  - Build: $BUILD_RESULT"
-          # Removed 'exit 1' to prevent the notify job from failing the pipeline if dependencies fail.
           # The 'if: always()' on the job ensures it runs, and the output will clearly show the failures.
+          # A non-zero exit code here would cause the 'notify' job to fail, which might mask other job statuses.
+          # We rely on the individual job statuses for reporting.
         fi
