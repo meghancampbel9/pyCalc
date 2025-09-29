@@ -78,7 +78,7 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `🧪 **Test Results**\n\n✅ Python ${context.job} tests passed!\n📊 Code Coverage: ${percentage}% (${coveredLines}/${totalLines} lines)\n🐍 Tested on Python versions: 3.8, 3.9, 3.10, 3.11, 3.12`
+            body: `🧪 **Test Results**\n\n✅ Python ${{ matrix.python-version }} tests passed!\n📊 Code Coverage: ${percentage}% (${coveredLines}/${totalLines} lines)\n🐍 Tested on Python versions: 3.8, 3.9, 3.10, 3.11, 3.12`
           });
 
   security-scan:
