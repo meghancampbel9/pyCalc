@@ -188,5 +188,9 @@ jobs:
           
           # The notify job should exit with 1 if any dependent job failed to ensure the workflow is marked as failed.
           # This ensures that if any of the dependent jobs (test, security, build) fail, the workflow will exit with code 1.
-          exit 1
+          # We should only exit with 1 if there was an actual failure, not just a cancellation that we are reporting.
+          # The condition for exiting with 1 should be if any of the jobs did not succeed.
+          if [ "$TEST_RESULT" != "success" ] || [ "$SECURITY_RESULT" != "success" ] || [ "$BUILD_RESULT" != "success" ]; then
+            exit 1
+          fi
         fi
