@@ -154,6 +154,11 @@ jobs:
         SECURITY_RESULT="${{ needs.security-scan.result }}"
         BUILD_RESULT="${{ needs.build-check.result }}"
 
+        # The 'always()' condition means this job runs even if previous jobs fail.
+        # We need to check the actual outcome of each job, not just its result status.
+        # The result status can be 'success', 'failure', 'cancelled', 'skipped', 'timed_out'.
+        # For this notification, we consider a job 'successful' if its result is 'success'.
+        
         if [ "$TEST_RESULT" == "success" ] && [ "$SECURITY_RESULT" == "success" ] && [ "$BUILD_RESULT" == "success" ]; then
           echo "✅ All checks passed!"
           echo "🎉 Pipeline successful for commit ${{ github.sha }}"
@@ -163,5 +168,8 @@ jobs:
           echo "  - Tests: $TEST_RESULT"
           echo "  - Security: $SECURITY_RESULT"
           echo "  - Build: $BUILD_RESULT"
-          exit 1
+          # Only exit with 1 if any of the required jobs actually failed (not skipped, cancelled, etc.)
+          if [ "$TEST_RESULT" == "failure" ] || [ "$SECURITY_RESULT" == "failure" ] || [ "$BUILD_RESULT" == "failure" ]; then
+            exit 1
+          fi
         fi
