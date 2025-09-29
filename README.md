@@ -82,7 +82,7 @@ The test suite includes:
 
 ## 🔄 CI/CD Pipeline
 
-This project includes a GitHub Actions workflow that runs on every push and pull request.
+This project includes a comprehensive GitHub Actions workflow that runs on every push and pull request.
 
 ### Pipeline Stages
 
