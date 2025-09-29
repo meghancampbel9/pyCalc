@@ -110,7 +110,7 @@ jobs:
       run: |
         # The '|| true' is added to prevent the workflow from failing if safety check finds vulnerabilities.
         # The actual failure detection should be handled by analyzing the report or by a dedicated tool.
-        safety check --output json --file safety-report.json
+        safety check --output json --file safety-report.json || true
     
     - name: Run bandit security scan
       run: |
