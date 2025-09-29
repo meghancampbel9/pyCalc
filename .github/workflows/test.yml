@@ -69,16 +69,25 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          const coverage = JSON.parse(fs.readFileSync('./coverage.xml', 'utf8'));
-          const totalLines = coverage.coverage.$.lines-valid;
-          const coveredLines = coverage.coverage.$.lines-covered;
-          const percentage = ((coveredLines / totalLines) * 100).toFixed(2);
+          const coverageData = fs.readFileSync('./coverage.xml', 'utf8');
+          // Basic parsing for demonstration; a real solution might use a dedicated XML parser
+          const totalLinesMatch = coverageData.match(/lines-valid="(\d+)"/);
+          const coveredLinesMatch = coverageData.match(/lines-covered="(\d+)"/);
+          
+          let percentage = 'N/A';
+          if (totalLinesMatch && coveredLinesMatch) {
+            const totalLines = parseInt(totalLinesMatch[1], 10);
+            const coveredLines = parseInt(coveredLinesMatch[1], 10);
+            if (totalLines > 0) {
+              percentage = ((coveredLines / totalLines) * 100).toFixed(2);
+            }
+          }
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `🧪 **Test Results**\n\n✅ Python ${context.job} tests passed!\n📊 Code Coverage: ${percentage}% (${coveredLines}/${totalLines} lines)\n🐍 Tested on Python versions: 3.8, 3.9, 3.10, 3.11, 3.12`
+            body: `🧪 **Test Results**\n\n✅ Python ${{ matrix.python-version }} tests passed!\n📊 Code Coverage: ${percentage}%\n🐍 Tested on Python versions: 3.8, 3.9, 3.10, 3.11, 3.12`
           });
 
   security-scan:
