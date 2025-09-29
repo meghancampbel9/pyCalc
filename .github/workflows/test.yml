@@ -108,6 +108,8 @@ jobs:
     
     - name: Run safety check
       run: |
+        # The '|| true' is added to prevent the workflow from failing if safety check finds vulnerabilities.
+        # The actual failure detection should be handled by analyzing the report or by a dedicated tool.
         safety check --output json --file safety-report.json || true
     
     - name: Run bandit security scan
@@ -176,17 +178,15 @@ jobs:
           # Explicitly check for 'cancelled' and report it as a failure
           if [ "$TEST_RESULT" == "cancelled" ] || [ "$TEST_RESULT" == "failure" ]; then
             echo "  - Tests: cancelled or failed (likely due to linting/formatting errors)"
-          elif [ "$SECURITY_RESULT" == "failure" ]; then
-            echo "  - Security: failed"
-          elif [ "$BUILD_RESULT" == "failure" ]; then
-            echo "  - Build: failed"
-          else
-            echo "  - Tests: $TEST_RESULT"
-            echo "  - Security: $SECURITY_RESULT"
-            echo "  - Build: $BUILD_RESULT"
           fi
+          if [ "$SECURITY_RESULT" == "failure" ]; then
+            echo "  - Security: failed"
+          fi
+          if [ "$BUILD_RESULT" == "failure" ]; then
+            echo "  - Build: failed"
+          fi
+          
           # The notify job should exit with 1 if any dependent job failed to ensure the workflow is marked as failed.
-          # The original logic incorrectly placed the exit 1 only within the test-specific failure condition.
           # This ensures that if any of the dependent jobs (test, security, build) fail, the workflow will exit with code 1.
           exit 1
         fi
