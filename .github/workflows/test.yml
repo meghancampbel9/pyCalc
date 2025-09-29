@@ -176,11 +176,19 @@ jobs:
           # Explicitly check for 'cancelled' and report it as a failure
           if [ "$TEST_RESULT" == "cancelled" ] || [ "$TEST_RESULT" == "failure" ]; then
             echo "  - Tests: cancelled or failed (likely due to linting/formatting errors)"
+            # Exit with a non-zero status to indicate overall pipeline failure if tests failed
+            exit 1
+          elif [ "$SECURITY_RESULT" == "failure" ]; then
+            echo "  - Security: failed"
+            exit 1
+          elif [ "$BUILD_RESULT" == "failure" ]; then
+            echo "  - Build: failed"
+            exit 1
           else
             echo "  - Tests: $TEST_RESULT"
+            echo "  - Security: $SECURITY_RESULT"
+            echo "  - Build: $BUILD_RESULT"
+            # If none of the above specific failures, but overall status is not success, exit with 1
+            exit 1
           fi
-          echo "  - Security: $SECURITY_RESULT"
-          echo "  - Build: $BUILD_RESULT"
-          # Exit with a non-zero status to indicate overall pipeline failure
-          exit 1
         fi
