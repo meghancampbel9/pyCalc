@@ -150,3 +150,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Intentional syntax error for testing
+def broken_function(:
+    pass
