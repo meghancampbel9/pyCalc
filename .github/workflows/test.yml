@@ -165,6 +165,7 @@ jobs:
 
         # The 'test' job can result in 'success', 'failure', or 'cancelled'.
         # We want to treat 'cancelled' as a failure for the overall pipeline status.
+        # Also, if any of the dependent jobs failed, we should exit with 1.
         if [ "$TEST_RESULT" == "success" ] && [ "$SECURITY_RESULT" == "success" ] && [ "$BUILD_RESULT" == "success" ]; then
           echo "✅ All checks passed!"
           echo "🎉 Pipeline successful for commit ${{ github.sha }}"
