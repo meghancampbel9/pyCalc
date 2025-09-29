@@ -95,7 +95,7 @@ This project includes a GitHub Actions workflow that runs on every push and pull
 ### Trigger Conditions
 
 The pipeline runs on:
-- Push to `main` or other branches
+- Push to `main`
 - Pull requests targeting `main`
 - Manual workflow dispatch
 
