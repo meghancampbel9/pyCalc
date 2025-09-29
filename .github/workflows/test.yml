@@ -108,7 +108,7 @@ jobs:
     
     - name: Run safety check
       run: |
-        safety check --output json -o safety-report.json || true
+        safety check --output json --file safety-report.json || true
     
     - name: Run bandit security scan
       run: |
