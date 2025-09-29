@@ -106,15 +106,15 @@ jobs:
         pip install -r requirements.txt
         pip install safety bandit
     
+    - name: Run bandit security scan
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+    
     - name: Run safety check
       run: |
         # The '|| true' is added to prevent the workflow from failing if safety check finds vulnerabilities.
         # The actual failure detection should be handled by analyzing the report or by a dedicated tool.
         safety check --output json --file safety-report.json || true
-    
-    - name: Run bandit security scan
-      run: |
-        bandit -r . -f json -o bandit-report.json || true
     
     - name: Upload security reports
       uses: actions/upload-artifact@v4
