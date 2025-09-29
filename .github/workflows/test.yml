@@ -204,7 +204,12 @@ jobs:
           echo "Pipeline details:"
           # The detailed messages are already printed above if a job failed.
           # Exit with 1 to indicate workflow failure only if there were actual failures, not just cancellations.
-          if [ "$HAS_TEST_FAILURE" = true ] || [ "$SECURITY_RESULT" == "failure" ] || [ "$BUILD_RESULT" == "failure" ]; then
+          # The condition for exiting with 1 should be more specific to actual failures.
+          # If TEST_RESULT is 'failure', it means tests failed.
+          # If SECURITY_RESULT is 'failure', it means security scan failed.
+          # If BUILD_RESULT is 'failure', it means build check failed.
+          # We should only exit with 1 if any of these specific failure states are true.
+          if [ "$TEST_RESULT" == "failure" ] || [ "$SECURITY_RESULT" == "failure" ] || [ "$BUILD_RESULT" == "failure" ]; then
             exit 1
           fi
         fi
