@@ -185,9 +185,6 @@ jobs:
             echo "  - Security: $SECURITY_RESULT"
             echo "  - Build: $BUILD_RESULT"
           fi
-          # The notify job should not exit with 1 if any dependent job failed,
-          # as the problem statement indicates the notify job itself should not fail.
-          # The overall workflow failure is already determined by the failed dependent jobs.
-          # However, to ensure the workflow is marked as failed, we should exit with 1 if any job failed.
+          # The notify job should exit with 1 if any dependent job failed to ensure the workflow is marked as failed.
           exit 1
         fi
