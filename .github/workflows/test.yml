@@ -1,0 +1,163 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Lint with flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Format check with black
+      run: |
+        black --check --diff .
+    
+    - name: Type check with mypy
+      run: |
+        mypy math.py --ignore-missing-imports
+    
+    - name: Test with pytest
+      run: |
+        pytest test_math.py -v --cov=math --cov-report=xml --cov-report=html --cov-report=term-missing
+    
+    - name: Upload coverage to Codecov
+      if: matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+    
+    - name: Archive test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: |
+          htmlcov/
+          coverage.xml
+          .pytest_cache/
+    
+    - name: Comment PR with test results
+      if: github.event_name == 'pull_request' && matrix.python-version == '3.11'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const coverage = JSON.parse(fs.readFileSync('./coverage.xml', 'utf8'));
+          const totalLines = coverage.coverage.$.lines-valid;
+          const coveredLines = coverage.coverage.$.lines-covered;
+          const percentage = ((coveredLines / totalLines) * 100).toFixed(2);
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `🧪 **Test Results**\n\n✅ Python ${context.job} tests passed!\n📊 Code Coverage: ${percentage}% (${coveredLines}/${totalLines} lines)\n🐍 Tested on Python versions: 3.8, 3.9, 3.10, 3.11, 3.12`
+          });
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install safety bandit
+    
+    - name: Run safety check
+      run: |
+        safety check --json --output safety-report.json || true
+    
+    - name: Run bandit security scan
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          safety-report.json
+          bandit-report.json
+
+  build-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip wheel
+        pip install -r requirements.txt
+    
+    - name: Build package
+      run: |
+        python setup.py sdist bdist_wheel
+    
+    - name: Check package
+      run: |
+        pip install twine
+        twine check dist/*
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: python-package-dist
+        path: dist/
+
+  notify:
+    needs: [test, security-scan, build-check]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Notify status
+      run: |
+        if [ "${{ needs.test.result }}" == "success" ] && [ "${{ needs.security-scan.result }}" == "success" ] && [ "${{ needs.build-check.result }}" == "success" ]; then
+          echo "✅ All checks passed!"
+          echo "🎉 Pipeline successful for commit ${{ github.sha }}"
+        else
+          echo "❌ Some checks failed"
+          echo "Pipeline details:"
+          echo "  - Tests: ${{ needs.test.result }}"
+          echo "  - Security: ${{ needs.security-scan.result }}"
+          echo "  - Build: ${{ needs.build-check.result }}"
+          exit 1
+        fi
