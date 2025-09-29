@@ -169,28 +169,43 @@ jobs:
         # We want to treat 'cancelled' as a failure for the overall pipeline status.
         # Also, if any of the dependent jobs failed, we should exit with 1.
         # We also need to explicitly check if the test job itself failed, not just if it was cancelled.
-        if [ "$TEST_RESULT" == "success" ] && [ "$SECURITY_RESULT" == "success" ] && [ "$BUILD_RESULT" == "success" ]; then
+        
+        # Define a variable to track overall pipeline success
+        PIPELINE_SUCCESS=true
+
+        # Check test job result
+        if [ "$TEST_RESULT" != "success" ]; then
+          echo "❌ Test job failed or was cancelled."
+          PIPELINE_SUCCESS=false
+          if [ "$TEST_RESULT" == "failure" ]; then
+            echo "  - Tests: failed (likely due to linting/formatting errors)"
+          elif [ "$TEST_RESULT" == "cancelled" ]; then
+            echo "  - Tests: cancelled"
+          fi
+        fi
+
+        # Check security scan job result
+        if [ "$SECURITY_RESULT" != "success" ]; then
+          echo "❌ Security scan job failed."
+          PIPELINE_SUCCESS=false
+          echo "  - Security: failed"
+        fi
+
+        # Check build check job result
+        if [ "$BUILD_RESULT" != "success" ]; then
+          echo "❌ Build check job failed."
+          PIPELINE_SUCCESS=false
+          echo "  - Build: failed"
+        fi
+
+        # If all jobs were successful, print success message
+        if [ "$PIPELINE_SUCCESS" = true ]; then
           echo "✅ All checks passed!"
           echo "🎉 Pipeline successful for commit ${{ github.sha }}"
         else
           echo "❌ Some checks failed"
           echo "Pipeline details:"
-          # Explicitly check for 'cancelled' and report it as a failure
-          if [ "$TEST_RESULT" == "cancelled" ] || [ "$TEST_RESULT" == "failure" ]; then
-            echo "  - Tests: cancelled or failed (likely due to linting/formatting errors)"
-          fi
-          if [ "$SECURITY_RESULT" == "failure" ]; then
-            echo "  - Security: failed"
-          fi
-          if [ "$BUILD_RESULT" == "failure" ]; then
-            echo "  - Build: failed"
-          fi
-          
-          # The notify job should exit with 1 if any dependent job failed to ensure the workflow is marked as failed.
-          # This ensures that if any of the dependent jobs (test, security, build) fail, the workflow will exit with code 1.
-          # We should only exit with 1 if there was an actual failure, not just a cancellation that we are reporting.
-          # The condition for exiting with 1 should be if any of the jobs did not succeed.
-          if [ "$TEST_RESULT" != "success" ] || [ "$SECURITY_RESULT" != "success" ] || [ "$BUILD_RESULT" != "success" ]; then
-            exit 1
-          fi
+          # The detailed messages are already printed above if a job failed.
+          # Exit with 1 to indicate workflow failure.
+          exit 1
         fi
