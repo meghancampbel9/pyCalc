@@ -166,6 +166,7 @@ jobs:
         # The 'test' job can result in 'success', 'failure', or 'cancelled'.
         # We want to treat 'cancelled' as a failure for the overall pipeline status.
         # Also, if any of the dependent jobs failed, we should exit with 1.
+        # We also need to explicitly check if the test job itself failed, not just if it was cancelled.
         if [ "$TEST_RESULT" == "success" ] && [ "$SECURITY_RESULT" == "success" ] && [ "$BUILD_RESULT" == "success" ]; then
           echo "✅ All checks passed!"
           echo "🎉 Pipeline successful for commit ${{ github.sha }}"
@@ -173,8 +174,8 @@ jobs:
           echo "❌ Some checks failed"
           echo "Pipeline details:"
           # Explicitly check for 'cancelled' and report it as a failure
-          if [ "$TEST_RESULT" == "cancelled" ]; then
-            echo "  - Tests: cancelled (likely due to linting/formatting errors)"
+          if [ "$TEST_RESULT" == "cancelled" ] || [ "$TEST_RESULT" == "failure" ]; then
+            echo "  - Tests: cancelled or failed (likely due to linting/formatting errors)"
           else
             echo "  - Tests: $TEST_RESULT"
           fi
