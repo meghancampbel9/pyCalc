@@ -1,4 +1,4 @@
-# Simple Math Calculator
+# Math Calculator
 
 A Python calculator application designed to test GitHub CI/CD workflows and GitHub Apps. This project includes comprehensive unit tests and automated CI/CD pipelines.
 
