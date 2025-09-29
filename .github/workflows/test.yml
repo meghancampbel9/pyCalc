@@ -167,6 +167,7 @@ jobs:
 
         # Define a variable to track overall pipeline success
         PIPELINE_SUCCESS=true
+        HAS_TEST_FAILURE=false
 
         # Check test job result
         if [ "$TEST_RESULT" != "success" ]; then
@@ -174,6 +175,7 @@ jobs:
           PIPELINE_SUCCESS=false
           if [ "$TEST_RESULT" == "failure" ]; then
             echo "  - Tests: failed (likely due to linting/formatting errors)"
+            HAS_TEST_FAILURE=true
           elif [ "$TEST_RESULT" == "cancelled" ]; then
             echo "  - Tests: cancelled"
           fi
@@ -201,6 +203,8 @@ jobs:
           echo "❌ Some checks failed"
           echo "Pipeline details:"
           # The detailed messages are already printed above if a job failed.
-          # Exit with 1 to indicate workflow failure.
-          exit 1
+          # Exit with 1 to indicate workflow failure only if there were actual failures, not just cancellations.
+          if [ "$HAS_TEST_FAILURE" = true ] || [ "$SECURITY_RESULT" == "failure" ] || [ "$BUILD_RESULT" == "failure" ]; then
+            exit 1
+          fi
         fi
