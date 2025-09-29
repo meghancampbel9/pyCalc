@@ -16,7 +16,7 @@ def divide(x, y):
     return x / y
 
 def power(x, y):
-    return x ** y
+    return x**y
 
 def sqrt(x):
     if x < 0:
@@ -26,8 +26,8 @@ def sqrt(x):
 def mean_squared_error(y_true, y_pred):
     if len(y_true) != len(y_pred):
         raise ValueError("Input lists must have the same length")
-    
+
     n = len(y_true)
-    squared_errors = [(y_true[i] - y_pred[i])**2 for i in range(n)]
+    squared_errors = [(y_true[i] - y_pred[i]) ** 2 for i in range(n)]
     mse = sum(squared_errors) / n
     return np.sqrt(mse)
