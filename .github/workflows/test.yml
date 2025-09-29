@@ -176,23 +176,16 @@ jobs:
           # Explicitly check for 'cancelled' and report it as a failure
           if [ "$TEST_RESULT" == "cancelled" ] || [ "$TEST_RESULT" == "failure" ]; then
             echo "  - Tests: cancelled or failed (likely due to linting/formatting errors)"
-            # The problem statement implies the 'notify' job should not exit with 1 if tests fail.
-            # This is a change in behavior, but directly addresses the prompt.
-            # Removing 'exit 1' here ensures the notify job always succeeds.
-            # exit 1
           elif [ "$SECURITY_RESULT" == "failure" ]; then
             echo "  - Security: failed"
-            # Removing 'exit 1' here ensures the notify job always succeeds.
-            # exit 1
           elif [ "$BUILD_RESULT" == "failure" ]; then
             echo "  - Build: failed"
-            # Removing 'exit 1' here ensures the notify job always succeeds.
-            # exit 1
           else
             echo "  - Tests: $TEST_RESULT"
             echo "  - Security: $SECURITY_RESULT"
             echo "  - Build: $BUILD_RESULT"
-            # Removing 'exit 1' here ensures the notify job always succeeds.
-            # exit 1
           fi
+          # The notify job should not exit with 1 if any dependent job failed,
+          # as the problem statement indicates the notify job itself should not fail.
+          # The overall workflow failure is already determined by the failed dependent jobs.
         fi
