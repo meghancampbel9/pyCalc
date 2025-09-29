@@ -150,14 +150,18 @@ jobs:
     steps:
     - name: Notify status
       run: |
-        if [ "${{ needs.test.result }}" == "success" ] && [ "${{ needs.security-scan.result }}" == "success" ] && [ "${{ needs.build-check.result }}" == "success" ]; then
+        TEST_RESULT="${{ needs.test.result }}"
+        SECURITY_RESULT="${{ needs.security-scan.result }}"
+        BUILD_RESULT="${{ needs.build-check.result }}"
+
+        if [ "$TEST_RESULT" == "success" ] && [ "$SECURITY_RESULT" == "success" ] && [ "$BUILD_RESULT" == "success" ]; then
           echo "✅ All checks passed!"
           echo "🎉 Pipeline successful for commit ${{ github.sha }}"
         else
           echo "❌ Some checks failed"
           echo "Pipeline details:"
-          echo "  - Tests: ${{ needs.test.result }}"
-          echo "  - Security: ${{ needs.security-scan.result }}"
-          echo "  - Build: ${{ needs.build-check.result }}"
+          echo "  - Tests: $TEST_RESULT"
+          echo "  - Security: $SECURITY_RESULT"
+          echo "  - Build: $BUILD_RESULT"
           exit 1
         fi
