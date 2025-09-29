@@ -7,9 +7,6 @@ A Python calculator application designed to test GitHub CI/CD workflows and GitH
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/pyLaunch.git
-cd pyLaunch
 
 # Create virtual environment
 python -m venv venv
