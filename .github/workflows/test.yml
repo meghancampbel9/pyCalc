@@ -108,9 +108,7 @@ jobs:
     
     - name: Run safety check
       run: |
-        # The 'safety check' command is deprecated. Use 'safety check --output json' instead.
-        # The '|| true' is kept to prevent the job from failing if safety check finds vulnerabilities.
-        safety check --output json || true
+        safety check --output json -o safety-report.json || true
     
     - name: Run bandit security scan
       run: |
