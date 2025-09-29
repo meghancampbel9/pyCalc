@@ -6,7 +6,7 @@ This file contains examples of how to intentionally fail the CI/CD pipeline to t
 
 ### 1. Break Basic Operation Test
 
-Edit `test_math.py` line ~26:
+Edit `test_calculator.py` line ~26:
 
 ```python
 # Change this line:
@@ -17,7 +17,7 @@ assert value == 5
 
 ### 2. Break Division Test
 
-Edit `test_math.py` around line ~107:
+Edit `test_calculator.py` around line ~107:
 
 ```python
 def test_divide_by_zero(self):
@@ -29,7 +29,7 @@ def test_divide_by_zero(self):
 
 ### 3. Break Syntax
 
-Add this line anywhere in `math.py`:
+Add this line anywhere in `calculator.py`:
 
 ```python
 def broken_syntax_function(:  # Missing closing parenthesis
@@ -37,7 +37,7 @@ def broken_syntax_function(:  # Missing closing parenthesis
 
 ### 4. Break Import Statement
 
-Add this line at the top of `test_math.py`:
+Add this line at the top of `test_calculator.py`:
 
 ```python
 import non_existent_module_for_failure_testing
@@ -45,7 +45,7 @@ import non_existent_module_for_failure_testing
 
 ### 5. Break Logic Flow
 
-Edit `test_math.py` line ~78:
+Edit `test_calculator.py` line ~78:
 
 ```python
 def test_multiply_by_zero(self):
@@ -92,13 +92,13 @@ git commit -m "test: trigger passing pipeline"
 git push origin main
 
 # Quick commit that will fail
-echo "assert False" >> test_math.py
-git add test_math.py
+echo "assert False" >> test_calculator.py
+git add test_calculator.py
 git commit -m "test: trigger failing pipeline"
 git push origin main
 
 # Revert the failure
-git checkout HEAD~1 test_math.py
+git checkout HEAD~1 test_calculator.py
 git commit -m "test: revert failure"
 git push origin main
 ```

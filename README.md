@@ -28,7 +28,7 @@ pip install -e .
 
 ```bash
 # Run the calculator
-python math.py
+python calculator.py
 
 # Or using the entry point
 simple-math
@@ -39,7 +39,7 @@ The calculator supports basic operations: `+`, `-`, `*`, `/`, `^`
 #### Python Module
 
 ```python
-from math import Calculator
+from calculator import Calculator
 
 calc = Calculator()
 result = calc.add(5, 3)  # 8
@@ -56,10 +56,10 @@ print(calc.get_history())
 
 ```bash
 # Run all tests
-pytest test_math.py -v
+pytest test_calculator.py -v
 
 # Run with coverage
-pytest test_math.py --cov=math --cov-report=html
+pytest test_calculator.py --cov=calculator --cov-report=html
 
 # View coverage report
 open htmlcov/index.html  # On macOS/Linux
@@ -116,7 +116,7 @@ To test your GitHub App's ability to handle pipeline failures, you can intention
 
 ### Method 1: Break Test Assertions
 
-Edit `test_math.py` and modify any `assert` statement:
+Edit `test_calculator.py` and modify any `assert` statement:
 
 ```python
 # Change this:
@@ -128,10 +128,10 @@ assert result == 50
 
 ### Method 2: Break Code Syntax
 
-Add a syntax error to `math.py`:
+Add a syntax error to `calculator.py`:
 
 ```python
-# Add this line anywhere in math.py
+# Add this line anywhere in calculator.py
 def broken_function(:
 ```
 
@@ -140,7 +140,7 @@ def broken_function(:
 Add an invalid import in the test file:
 
 ```python
-# Add this at the top of test_math.py
+# Add this at the top of test_calculator.py
 import nonexistent_module
 ```
 
@@ -167,8 +167,8 @@ pyLaunch/
 ├── README.md                    # Project documentation
 ├── requirements.txt             # Python dependencies
 ├── setup.py                     # Package setup configuration
-├── math.py              # Main calculator module
-└── test_math.py         # Comprehensive test suite
+├── calculator.py        # Main calculator module
+└── test_calculator.py   # Comprehensive test suite
 ```
 
 ## 📊 Test Coverage
@@ -214,16 +214,16 @@ The project uses several development tools:
 
 ```bash
 # Run specific test class
-pytest test_math.py::TestCalculator -v
+pytest test_calculator.py::TestCalculator -v
 
 # Run with coverage
-pytest --cov=math --cov-report=term-missing
+pytest --cov=calculator --cov-report=term-missing
 
 # Run parametrized tests only
-pytest test_math.py -k "parametrized" -v
+pytest test_calculator.py -k "parametrized" -v
 
 # Run fast tests (skip slow ones)
-pytest test_math.py -m "not slow" -v
+pytest test_calculator.py -m "not slow" -v
 ```
 
 ### Example CI Pipeline Trigger

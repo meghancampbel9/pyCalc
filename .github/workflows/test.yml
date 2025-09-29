@@ -40,11 +40,11 @@ jobs:
     
     - name: Type check with mypy
       run: |
-        mypy math.py --ignore-missing-imports
+        mypy calculator.py --ignore-missing-imports
     
     - name: Test with pytest
       run: |
-        pytest test_math.py -v --cov=math --cov-report=xml --cov-report=html --cov-report=term-missing
+        pytest test_calculator.py -v --cov=calculator --cov-report=xml --cov-report=html --cov-report=term-missing
     
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.11'
