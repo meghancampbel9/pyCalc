@@ -163,16 +163,22 @@ jobs:
         SECURITY_RESULT="${{ needs.security-scan.result }}"
         BUILD_RESULT="${{ needs.build-check.result }}"
 
+        # The 'test' job can result in 'success', 'failure', or 'cancelled'.
+        # We want to treat 'cancelled' as a failure for the overall pipeline status.
         if [ "$TEST_RESULT" == "success" ] && [ "$SECURITY_RESULT" == "success" ] && [ "$BUILD_RESULT" == "success" ]; then
           echo "✅ All checks passed!"
           echo "🎉 Pipeline successful for commit ${{ github.sha }}"
         else
           echo "❌ Some checks failed"
           echo "Pipeline details:"
-          echo "  - Tests: $TEST_RESULT"
+          # Explicitly check for 'cancelled' and report it as a failure
+          if [ "$TEST_RESULT" == "cancelled" ]; then
+            echo "  - Tests: cancelled (likely due to linting/formatting errors)"
+          else
+            echo "  - Tests: $TEST_RESULT"
+          fi
           echo "  - Security: $SECURITY_RESULT"
           echo "  - Build: $BUILD_RESULT"
-          # The 'if: always()' on the job ensures it runs, and the output will clearly show the failures.
-          # A non-zero exit code here would cause the 'notify' job to fail, which might mask other job statuses.
-          # We rely on the individual job statuses for reporting.
+          # Exit with a non-zero status to indicate overall pipeline failure
+          exit 1
         fi
