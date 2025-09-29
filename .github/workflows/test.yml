@@ -165,11 +165,6 @@ jobs:
         SECURITY_RESULT="${{ needs.security-scan.result }}"
         BUILD_RESULT="${{ needs.build-check.result }}"
 
-        # The 'test' job can result in 'success', 'failure', or 'cancelled'.
-        # We want to treat 'cancelled' as a failure for the overall pipeline status.
-        # Also, if any of the dependent jobs failed, we should exit with 1.
-        # We also need to explicitly check if the test job itself failed, not just if it was cancelled.
-        
         # Define a variable to track overall pipeline success
         PIPELINE_SUCCESS=true
 
